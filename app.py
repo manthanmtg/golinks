@@ -57,7 +57,7 @@ class LinkUsage(db.Model):
 def not_found_error(error):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Not found'}), 404
-    return redirect('/go/go')
+    return redirect('/')
 
 @app.errorhandler(500)
 def internal_error(error):
@@ -70,20 +70,16 @@ def internal_error(error):
 # Routes
 @app.route('/')
 def root():
-    return redirect('/go/go')
+    return render_template('index.html')
 
-@app.route('/go/<path:shortlink>')
+@app.route('/<path:shortlink>')
 def handle_go_link(shortlink):
     try:
-        # Special case for go/go
-        if shortlink == 'go':
-            return render_template('index.html')
-        
         # Find the link in database
         link = GoLink.query.filter_by(shortlink=shortlink).first()
         if not link:
             app.logger.info(f'Shortlink not found: {shortlink}')
-            return redirect('/go/go')
+            return render_template('not_found.html', shortlink=shortlink), 404
         
         # Get any additional arguments
         args = request.args.get('q', '')
@@ -113,7 +109,7 @@ def handle_go_link(shortlink):
     except Exception as e:
         app.logger.error(f'Error handling go link: {str(e)}')
         db.session.rollback()
-        return redirect('/go/go')
+        return redirect('/')
 
 @app.route('/api/links', methods=['GET'])
 def get_links():
