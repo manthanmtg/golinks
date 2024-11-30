@@ -89,6 +89,26 @@ def setup_nssm():
         print(f"Error setting up service: {e}")
         sys.exit(1)
 
+def setup_database():
+    print("Initializing database...")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    venv_flask = os.path.join(root_dir, "venv", "Scripts", "flask.exe")
+    
+    # Create golinks directory if it doesn't exist
+    golinks_dir = os.path.expanduser("~/.golinks")
+    os.makedirs(golinks_dir, exist_ok=True)
+    
+    try:
+        # Set the FLASK_APP environment variable
+        os.environ["FLASK_APP"] = os.path.join(root_dir, "app.py")
+        
+        # Initialize database and run migrations
+        run_command([venv_flask, "db", "upgrade"])
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+        sys.exit(1)
+
 def main():
     if not is_admin():
         print("This script requires administrator privileges.")
@@ -103,6 +123,7 @@ def main():
 
     setup_venv()
     setup_dns()
+    setup_database()
     setup_nssm()
     print("\nInstallation complete! Access golinks at http://go/go")
     print("Note: You may need to flush DNS cache: 'ipconfig /flushdns'")

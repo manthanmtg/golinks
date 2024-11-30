@@ -48,6 +48,26 @@ def setup_dns():
         print(f"Error setting up DNS: {e}")
         print("Please manually add '127.0.0.1 go' to /etc/hosts")
 
+def setup_database():
+    print("Initializing database...")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    venv_flask = os.path.join(root_dir, "venv", "bin", "flask")
+    
+    # Create golinks directory if it doesn't exist
+    golinks_dir = os.path.expanduser("~/.golinks")
+    os.makedirs(golinks_dir, exist_ok=True)
+    
+    try:
+        # Set the FLASK_APP environment variable
+        os.environ["FLASK_APP"] = os.path.join(root_dir, "app.py")
+        
+        # Initialize database and run migrations
+        run_command([venv_flask, "db", "upgrade"])
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+        sys.exit(1)
+
 def create_systemd_service():
     print("Setting up systemd service...")
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -98,6 +118,7 @@ def main():
 
     setup_venv()
     setup_dns()
+    setup_database()
     create_systemd_service()
     print("\nInstallation complete! Access golinks at http://go/go")
 
