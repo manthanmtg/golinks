@@ -213,18 +213,21 @@ def update_link(link_id):
         db.session.rollback()
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/api/links/<string:shortlink>/stats')
+@app.route('/api/links/<string:shortlink>/stats', methods=['GET'])
 def get_link_stats(shortlink):
     try:
-        stats = db.session.query(
-            db.func.count(LinkUsage.id).label('usage_count'),
-            db.func.max(LinkUsage.accessed_at).label('last_used')
-        ).filter(LinkUsage.shortlink == shortlink).first()
+        # Get visit count
+        visit_count = LinkUsage.query.filter_by(shortlink=shortlink).count()
         
-        return jsonify({
-            'usage_count': stats[0] if stats else 0,
-            'last_used': stats[1].isoformat() if stats and stats[1] else None
-        })
+        # Get last used time
+        last_usage = LinkUsage.query.filter_by(shortlink=shortlink).order_by(LinkUsage.accessed_at.desc()).first()
+        
+        stats = {
+            'visits': visit_count,
+            'last_used': last_usage.accessed_at.isoformat() if last_usage else None
+        }
+        
+        return jsonify(stats)
     except Exception as e:
         app.logger.error(f'Error getting link stats: {str(e)}')
         return jsonify({'error': 'Internal server error'}), 500
