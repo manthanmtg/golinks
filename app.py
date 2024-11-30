@@ -27,7 +27,9 @@ class LinkUsage(Base):
 
 # Database setup
 def get_db():
-    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'golinks.db')
+    home_dir = os.path.expanduser('~')
+    db_name = '.golinks.db'
+    db_path = os.path.join(home_dir, db_name)
     engine = create_engine(f'sqlite:///{db_path}')
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)

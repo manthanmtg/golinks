@@ -53,6 +53,6 @@ To make `go/` URLs work system-wide, you need to configure your system's DNS:
 
 The application uses:
 - Flask for the web server
-- SQLAlchemy for database operations
+- SQLAlchemy for database operations (SQLite database stored in `~/.golinks.db`)
 - TailwindCSS for the UI
 - Modern JavaScript for frontend interactivity
