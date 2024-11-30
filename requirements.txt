@@ -1,0 +1,5 @@
+flask==2.3.3
+sqlalchemy==2.0.20
+python-dotenv==1.0.0
+click==8.1.7
+werkzeug==2.3.7

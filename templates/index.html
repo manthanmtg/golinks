@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoLinks Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">GoLinks Manager</h1>
+                <div class="flex space-x-4">
+                    <button id="showLinks" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-link mr-2"></i>Links
+                    </button>
+                    <button id="showAnalytics" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <i class="fas fa-chart-line mr-2"></i>Analytics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Links Section -->
+            <div id="linksSection">
+                <div class="mb-6">
+                    <form id="addLinkForm" class="flex flex-wrap gap-4">
+                        <input type="text" id="shortlink" placeholder="Shortlink (e.g., google)" 
+                               class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="destination" placeholder="Destination URL" 
+                               class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-plus mr-2"></i>Add Link
+                        </button>
+                    </form>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shortlink</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="linksTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shortlink</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usage Count</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Used</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analyticsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString();
+        }
+
+        function showError(message) {
+            alert(message); // In a production app, use a better error notification system
+        }
+
+        // UI state management
+        document.getElementById('showLinks').addEventListener('click', () => {
+            document.getElementById('linksSection').classList.remove('hidden');
+            document.getElementById('analyticsSection').classList.add('hidden');
+            loadLinks();
+        });
+
+        document.getElementById('showAnalytics').addEventListener('click', () => {
+            document.getElementById('linksSection').classList.add('hidden');
+            document.getElementById('analyticsSection').classList.remove('hidden');
+            loadAnalytics();
+        });
+
+        // Links management
+        async function loadLinks() {
+            try {
+                const response = await fetch('/api/links');
+                const links = await response.json();
+                const tbody = document.getElementById('linksTableBody');
+                tbody.innerHTML = links.map(link => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">go/${link.shortlink}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${link.destination}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${formatDate(link.created_at)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button onclick="deleteLink(${link.id})" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showError('Failed to load links');
+            }
+        }
+
+        document.getElementById('addLinkForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const shortlink = document.getElementById('shortlink').value;
+            const destination = document.getElementById('destination').value;
+
+            try {
+                const response = await fetch('/api/links', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ shortlink, destination }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.description || 'Failed to add link');
+                }
+
+                document.getElementById('shortlink').value = '';
+                document.getElementById('destination').value = '';
+                loadLinks();
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        async function deleteLink(id) {
+            if (!confirm('Are you sure you want to delete this link?')) return;
+
+            try {
+                const response = await fetch(`/api/links/${id}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete link');
+                }
+
+                loadLinks();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // Analytics
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics');
+                const analytics = await response.json();
+                const tbody = document.getElementById('analyticsTableBody');
+                tbody.innerHTML = analytics.map(item => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">go/${item.shortlink}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.usage_count}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.last_used ? formatDate(item.last_used) : 'Never'}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showError('Failed to load analytics');
+            }
+        }
+
+        // Initial load
+        loadLinks();
+    </script>
+</body>
+</html>
