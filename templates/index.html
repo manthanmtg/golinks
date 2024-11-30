@@ -198,6 +198,9 @@
                     <button id="showAnalytics" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                         <i class="fas fa-chart-line mr-2"></i>Analytics
                     </button>
+                    <select id="timezoneSelect" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="local">Local Timezone</option>
+                    </select>
                 </div>
             </div>
             
@@ -261,7 +264,26 @@
     <script>
         // Utility functions
         function formatDate(dateString) {
-            return new Date(dateString).toLocaleString();
+            if (!dateString) return '';
+            // Parse the ISO string as UTC
+            const date = new Date(dateString + 'Z');
+            const timezone = document.getElementById('timezoneSelect').value;
+            
+            const options = {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            };
+            
+            if (timezone === 'local') {
+                return date.toLocaleString(undefined, options);
+            }
+            
+            return date.toLocaleString(undefined, { ...options, timeZone: timezone });
         }
 
         function showNotification(message, type = 'error') {
@@ -584,6 +606,43 @@
                 `;
             }
         }
+
+        // Timezone handling
+        function populateTimezones() {
+            const timezones = Intl.supportedValuesOf('timeZone');
+            const select = document.getElementById('timezoneSelect');
+            
+            // Keep the local timezone option as first
+            const localOption = select.querySelector('option[value="local"]');
+            localOption.textContent = `Local Timezone (${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
+            
+            // Add other timezones
+            timezones.forEach(timezone => {
+                const option = document.createElement('option');
+                option.value = timezone;
+                option.textContent = timezone;
+                select.appendChild(option);
+            });
+
+            // Load saved timezone preference
+            const savedTimezone = localStorage.getItem('preferredTimezone');
+            if (savedTimezone) {
+                select.value = savedTimezone;
+            }
+        }
+
+        // Save timezone preference when changed
+        document.getElementById('timezoneSelect').addEventListener('change', function() {
+            localStorage.setItem('preferredTimezone', this.value);
+            // Refresh the current view to update timestamps
+            if (document.getElementById('analyticsTable').classList.contains('hidden')) {
+                loadLinks();
+            } else {
+                loadAnalytics();
+            }
+        });
+
+        populateTimezones();
 
         // Initial load
         loadLinks();
