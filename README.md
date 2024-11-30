@@ -1,6 +1,6 @@
 # golinks
 
-A local implementation of go-links for quick navigation and URL management, similar to Google's internal go links system.
+A local implementation of go-links for quick navigation and URL management, similar to Google's internal go links system. Type `go/shortlink` in your browser to quickly access your favorite websites!
 
 ## Features
 
@@ -12,122 +12,169 @@ A local implementation of go-links for quick navigation and URL management, simi
 - SQLite database by default (pluggable database architecture)
 - All data stored in `~/.golinks/` directory
 
-## Usage Guide
+## Installation
 
-### Basic Usage
+### Prerequisites
+- Python 3.10 or higher
+- pip (Python package installer)
+- Administrative access (for DNS configuration)
+- For Windows: [NSSM](https://nssm.cc/) (the Non-Sucking Service Manager)
 
-1. Access the web interface:
-   - Open your browser and go to `go/go` or `http://localhost:8080/go/go`
-   - You'll see the main dashboard where you can manage your links
+### Setup
 
-2. Adding a new link:
-   - Click the "Add Link" button
-   - Enter a shortlink (e.g., `google`)
-   - Enter the destination URL (e.g., `https://www.google.com`)
-   - Click "Add Link"
-
-3. Using your links:
-   - Basic navigation: Type `go/shortlink` in your browser
-     Example: `go/google` → redirects to Google
-   
-   - With search terms: Type `go/shortlink "search term"`
-     Example: `go/google "cascade ai"` → searches Google for "cascade ai"
-   
-   - With custom parameters: Use the {query} placeholder in your destination URL
-     Example: Set up `go/gh` to point to `https://github.com/search?q={query}`
-     Then `go/gh "python flask"` will search GitHub for "python flask"
-
-### Advanced Features
-
-1. Analytics:
-   - Click the "Analytics" tab to view:
-     * Most used links
-     * Usage patterns
-     * Last accessed times
-     * Search term statistics
-
-2. Link Management:
-   - Delete links you no longer need
-   - View creation dates and usage statistics
-   - Sort and filter your links
-
-### URL Pattern Examples
-
-1. Simple redirect:
-   - Shortlink: `docs`
-   - Destination: `https://docs.google.com`
-   - Usage: `go/docs`
-
-2. Search engine:
-   - Shortlink: `g`
-   - Destination: `https://www.google.com/search?q={query}`
-   - Usage: `go/g "your search term"`
-
-3. GitHub repository:
-   - Shortlink: `repo`
-   - Destination: `https://github.com/yourusername/{query}`
-   - Usage: `go/repo "project-name"`
-
-4. JIRA tickets:
-   - Shortlink: `jira`
-   - Destination: `https://your-company.atlassian.net/browse/{query}`
-   - Usage: `go/jira "PROJ-123"`
-
-## Data Storage
-
-All application data is stored in your home directory:
-- Database: `~/.golinks/golinks.db`
-- Log files: `~/.golinks/golinks.log`
-
-To backup your links, simply copy the `~/.golinks` directory.
-
-## Running as a Service
-
-### On Linux (systemd)
-
-1. Copy the service file:
+1. Clone the repository:
 ```bash
-sudo cp golinks.service /etc/systemd/system/
+git clone https://github.com/yourusername/golinks-local.git
+cd golinks-local
 ```
 
-2. Start and enable the service:
+2. Create a virtual environment and install dependencies:
 ```bash
-sudo systemctl start golinks
-sudo systemctl enable golinks
+# On macOS/Linux:
+python3 -m venv venv
+source venv/bin/activate
+
+# On Windows:
+python -m venv venv
+.\venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### On macOS (launchd)
+3. Run the installation script for your platform:
 
-1. Create a launch agent:
+macOS:
 ```bash
-mkdir -p ~/Library/LaunchAgents
-cp com.user.golinks.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.user.golinks.plist
+python3 macos_install.py
 ```
 
-### On Windows
+Linux:
+```bash
+sudo python3 linux_install.py
+```
 
-1. Create a Windows service:
+Windows (run PowerShell as Administrator):
 ```powershell
-nssm install GoLinks "path\to\python.exe" "path\to\app.py"
-nssm start GoLinks
+python windows_install.py
 ```
+
+The installation script will:
+- Configure DNS to resolve `go` to localhost
+- Set up the service to run on startup
+- Start the service
+
+## Using golinks
+
+### First Time Setup
+
+1. Open your browser and go to `go/go` or `http://localhost:8080/go/go`
+2. You'll see the main dashboard where you can manage your links
+3. Click "Add Link" to create your first shortlink
+
+### Adding Links
+
+1. Click "Add Link" in the dashboard
+2. Enter a shortlink (e.g., `google`)
+3. Enter the destination URL (e.g., `https://www.google.com`)
+4. Click "Add Link"
+
+### Using Your Links
+
+#### Basic Navigation
+Just type `go/shortlink` in your browser:
+- `go/google` → redirects to Google
+- `go/github` → redirects to GitHub
+- `go/docs` → redirects to your documentation
+
+#### Search Shortcuts
+Add search terms in quotes:
+- `go/google "cascade ai"` → searches Google for "cascade ai"
+- `go/youtube "cute cats"` → searches YouTube for "cute cats"
+
+#### Advanced Usage
+Use the {query} placeholder in your destination URLs:
+1. Set up GitHub search:
+   - Shortlink: `gh`
+   - URL: `https://github.com/search?q={query}`
+   - Usage: `go/gh "python flask"` searches GitHub
+
+2. Set up JIRA tickets:
+   - Shortlink: `jira`
+   - URL: `https://your-company.atlassian.net/browse/{query}`
+   - Usage: `go/jira "PROJ-123"` opens ticket
+
+### Managing Links
+
+1. View all links at `go/go`
+2. Click on a link to:
+   - View usage statistics
+   - Edit the destination URL
+   - Delete the link
+3. Use the search bar to find specific links
+4. Sort links by usage, creation date, or name
+
+## Backup and Data
+
+All data is stored in `~/.golinks/`:
+- `golinks.db`: Your links database
+- `golinks.log`: Application logs
+
+To backup your links, copy the `~/.golinks` directory.
 
 ## Troubleshooting
 
-1. DNS Issues:
-   - Verify your hosts file contains `127.0.0.1 go`
-   - Try accessing via `localhost:8080/go/shortlink`
-   - Flush DNS cache if needed
+### Can't access go/links
+1. Verify DNS configuration:
+   ```bash
+   # On macOS/Linux:
+   cat /etc/hosts  # Should show: 127.0.0.1 go
 
-2. Server Issues:
-   - Check logs in `~/.golinks/golinks.log`
-   - Ensure port 8080 is not in use
-   - Verify Python environment is activated
+   # On Windows:
+   type C:\Windows\System32\drivers\etc\hosts
+   ```
 
-3. Database Issues:
-   - Run `flask db upgrade` to ensure schema is up to date
-   - Check permissions on `~/.golinks` directory
+2. Flush DNS cache:
+   ```bash
+   # macOS
+   sudo killall -HUP mDNSResponder
+
+   # Windows
+   ipconfig /flushdns
+
+   # Linux
+   sudo systemd-resolve --flush-caches
+   ```
+
+### Service Issues
+1. Check service status:
+   ```bash
+   # macOS
+   launchctl list | grep golinks
+
+   # Windows
+   sc query GoLinks
+
+   # Linux
+   systemctl status golinks
+   ```
+
+2. View logs:
+   ```bash
+   tail -f ~/.golinks/golinks.log
+   ```
+
+### Database Issues
+1. Check permissions:
+   ```bash
+   ls -la ~/.golinks/
+   ```
+
+2. Reset database (will delete all links):
+   ```bash
+   rm ~/.golinks/golinks.db
+   flask db upgrade
+   ```
 
 ## Contributing
 
