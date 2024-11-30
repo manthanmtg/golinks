@@ -360,9 +360,14 @@
             tr.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                     <div class="stats-cell" onmouseover="loadLinkStats('${link.shortlink}', this)">
-                        <div class="view-mode">${link.shortlink}</div>
+                        <div class="view-mode">
+                            <span class="text-gray-500">go/</span>${link.shortlink}
+                        </div>
                         <div class="edit-mode" style="display: none;">
-                            <input type="text" value="${link.shortlink}" class="shortlink-edit w-full">
+                            <div class="flex items-center">
+                                <span class="text-gray-500 mr-1">go/</span>
+                                <input type="text" value="${link.shortlink}" class="shortlink-edit w-full">
+                            </div>
                         </div>
                         <div class="tooltip">
                             <div class="text-sm">
