@@ -27,7 +27,7 @@ def stop_service():
 
 def main():
     stop_service()
-    print("\nGoLinks service has been stopped. You can restart it using macos_golinks_start.py")
+    print("\nGoLinks service has been stopped. You can restart it using golinks.py --start")
 
 if __name__ == "__main__":
     main()

@@ -22,6 +22,9 @@ def run_command(cmd):
 
 def setup_venv():
     print("Setting up virtual environment...")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(root_dir)
+    
     if not os.path.exists("venv"):
         try:
             venv.create("venv", with_pip=True)
@@ -56,9 +59,9 @@ def setup_dns():
 
 def setup_nssm():
     print("Setting up NSSM service...")
-    install_dir = os.path.abspath(os.path.dirname(__file__))
-    venv_python = os.path.join(install_dir, "venv", "Scripts", "python.exe")
-    app_path = os.path.join(install_dir, "app.py")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    venv_python = os.path.join(root_dir, "venv", "Scripts", "python.exe")
+    app_path = os.path.join(root_dir, "app.py")
     
     # Check if NSSM is available
     try:
@@ -76,7 +79,7 @@ def setup_nssm():
 
         # Install new service
         run_command(["nssm", "install", "GoLinks", venv_python, app_path])
-        run_command(["nssm", "set", "GoLinks", "AppDirectory", install_dir])
+        run_command(["nssm", "set", "GoLinks", "AppDirectory", root_dir])
         run_command(["nssm", "set", "GoLinks", "DisplayName", "GoLinks Local Service"])
         run_command(["nssm", "set", "GoLinks", "Description", "Local URL shortener service"])
         run_command(["nssm", "set", "GoLinks", "Start", "SERVICE_AUTO_START"])
@@ -93,8 +96,9 @@ def main():
         sys.exit(1)
 
     # Check for requirements.txt
-    if not os.path.exists("requirements.txt"):
-        print("requirements.txt not found in the current directory")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not os.path.exists(os.path.join(root_dir, "requirements.txt")):
+        print("requirements.txt not found in the root directory")
         sys.exit(1)
 
     setup_venv()

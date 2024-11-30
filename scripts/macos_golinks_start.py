@@ -14,6 +14,9 @@ def run_command(cmd):
 
 def setup_venv():
     print("Setting up virtual environment...")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(root_dir)
+    
     if not os.path.exists("venv"):
         try:
             venv.create("venv", with_pip=True)
@@ -47,9 +50,9 @@ def setup_dns():
 
 def create_launch_agent():
     print("Setting up launch agent...")
-    install_dir = os.path.abspath(os.path.dirname(__file__))
-    venv_python = os.path.join(install_dir, "venv", "bin", "python3")
-    app_path = os.path.join(install_dir, "app.py")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    venv_python = os.path.join(root_dir, "venv", "bin", "python3")
+    app_path = os.path.join(root_dir, "app.py")
     
     plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -63,7 +66,7 @@ def create_launch_agent():
         <string>{app_path}</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>{install_dir}</string>
+    <string>{root_dir}</string>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
@@ -99,8 +102,9 @@ def create_launch_agent():
 
 def main():
     # Check for requirements.txt
-    if not os.path.exists("requirements.txt"):
-        print("requirements.txt not found in the current directory")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not os.path.exists(os.path.join(root_dir, "requirements.txt")):
+        print("requirements.txt not found in the root directory")
         sys.exit(1)
 
     setup_venv()

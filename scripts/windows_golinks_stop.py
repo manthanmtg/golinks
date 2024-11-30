@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
-import sys
 import subprocess
+import sys
 import ctypes
 
 def is_admin():
@@ -45,7 +45,7 @@ def main():
         sys.exit(1)
 
     stop_service()
-    print("\nGoLinks service has been stopped. You can restart it using windows_golinks_start.py")
+    print("\nGoLinks service has been stopped. You can restart it using golinks.py --start")
 
 if __name__ == "__main__":
     main()

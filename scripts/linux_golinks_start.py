@@ -14,6 +14,9 @@ def run_command(cmd):
 
 def setup_venv():
     print("Setting up virtual environment...")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(root_dir)
+    
     if not os.path.exists("venv"):
         try:
             venv.create("venv", with_pip=True)
@@ -47,9 +50,9 @@ def setup_dns():
 
 def create_systemd_service():
     print("Setting up systemd service...")
-    install_dir = os.path.abspath(os.path.dirname(__file__))
-    venv_python = os.path.join(install_dir, "venv", "bin", "python3")
-    app_path = os.path.join(install_dir, "app.py")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    venv_python = os.path.join(root_dir, "venv", "bin", "python3")
+    app_path = os.path.join(root_dir, "app.py")
     
     service_content = f"""[Unit]
 Description=GoLinks Local Service
@@ -58,7 +61,7 @@ After=network.target
 [Service]
 Type=simple
 User={os.getenv('USER')}
-WorkingDirectory={install_dir}
+WorkingDirectory={root_dir}
 Environment=PATH=/usr/local/bin:/usr/bin:/bin
 ExecStart={venv_python} {app_path}
 Restart=always
@@ -88,8 +91,9 @@ def main():
         sys.exit(1)
 
     # Check for requirements.txt
-    if not os.path.exists("requirements.txt"):
-        print("requirements.txt not found in the current directory")
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not os.path.exists(os.path.join(root_dir, "requirements.txt")):
+        print("requirements.txt not found in the root directory")
         sys.exit(1)
 
     setup_venv()

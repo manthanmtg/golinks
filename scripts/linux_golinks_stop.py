@@ -34,7 +34,7 @@ def main():
         sys.exit(1)
 
     stop_service()
-    print("\nGoLinks service has been stopped. You can restart it using linux_golinks_start.py")
+    print("\nGoLinks service has been stopped. You can restart it using golinks.py --start")
 
 if __name__ == "__main__":
     main()
