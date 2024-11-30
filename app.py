@@ -161,10 +161,10 @@ def create_link():
         db.session.rollback()
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/api/links/<int:link_id>', methods=['DELETE'])
-def delete_link(link_id):
+@app.route('/api/links/<string:shortlink>', methods=['DELETE'])
+def delete_link(shortlink):
     try:
-        link = GoLink.query.get(link_id)
+        link = GoLink.query.filter_by(shortlink=shortlink).first()
         if not link:
             return '', 404
         

@@ -88,38 +88,23 @@
             border-radius: 0.375rem;
         }
 
+        .stats-cell {
+            position: relative;
+        }
         .tooltip {
+            display: none;
             position: absolute;
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 0.375rem;
             padding: 0.75rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             z-index: 50;
-            display: none;
-            white-space: nowrap;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 100%;
-            margin-bottom: 0.5rem;
-        }
-
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            left: 50%;
+            min-width: 200px;
             top: 100%;
-            transform: translateX(-50%);
-            border-width: 8px;
-            border-style: solid;
-            border-color: white transparent transparent transparent;
+            left: 0;
+            margin-top: 0.5rem;
         }
-        
-        .stats-cell {
-            position: relative;
-            cursor: pointer;
-        }
-
         .stats-cell:hover .tooltip {
             display: block;
         }
