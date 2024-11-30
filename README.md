@@ -1,185 +1,185 @@
-# golinks
+# golinks-local
 
-A local implementation of go-links for quick navigation and URL management, similar to Google's internal go links system. Type `go/shortlink` in your browser to quickly access your favorite websites!
+A powerful and user-friendly local implementation of go-links for quick navigation and URL management, inspired by Google's internal go links system. Simply type `go/shortlink` in your browser to instantly access your favorite websites!
 
-## Features
+## Key Features
 
-- Create and manage custom URL shortcuts (e.g., `go/google` → google.com)
-- Support for search parameters (e.g., `go/google "search term"`)
-- Modern web interface for managing links (accessible via `go/go`)
-- Usage analytics tracking
-- Cross-platform support (Windows, Linux, Mac)
-- SQLite database by default (pluggable database architecture)
-- All data stored in `~/.golinks/` directory
+- **Quick Navigation**: Create and use custom URL shortcuts (e.g., `go/google` → google.com)
+- **Smart Search**: Support for dynamic search parameters (e.g., `go/google "search term"`)
+- **Modern Interface**: Clean web dashboard for link management (accessible via `go/go`)
+- **Analytics**: Track usage patterns and popular links
+- **Cross-Platform**: Full support for Windows, Linux, and macOS
+- **Local Storage**: SQLite database with all data stored securely in `~/.golinks/`
+- **Customizable**: Pluggable database architecture for flexibility
+- **Privacy-Focused**: All data stays on your machine
 
-## Installation
+## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.10 or higher
 - pip (Python package installer)
-- Administrative access (for DNS configuration)
-- For Windows: [NSSM](https://nssm.cc/) (the Non-Sucking Service Manager)
+- Administrative privileges (for DNS setup)
+- For Windows users: [NSSM](https://nssm.cc/) (Non-Sucking Service Manager)
 
-### Setup
+### Installation Steps
 
-1. Clone the repository:
+1. **Get the Code**
+   ```bash
+   git clone https://github.com/yourusername/golinks-local.git
+   cd golinks-local
+   ```
+
+2. **Set Up Environment**
+   ```bash
+   # macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
+
+   # Windows
+   python -m venv venv
+   .\venv\Scripts\activate
+
+   # Install required packages
+   pip install -r requirements.txt
+   ```
+
+3. **Start the Service**
+
+   Use the convenient `golinks.py` utility to manage the service:
+   ```bash
+   # Start the service
+   python golinks.py --start
+
+   # Stop the service (when needed)
+   python golinks.py --stop
+   ```
+
+   The utility automatically detects your platform (Windows/macOS/Linux) and runs the appropriate scripts.
+
+   Alternatively, you can run platform-specific scripts directly:
+   ```bash
+   # macOS
+   python3 scripts/macos_golinks_start.py
+
+   # Linux
+   sudo python3 scripts/linux_golinks_start.py
+
+   # Windows (Run PowerShell as Admin)
+   python scripts/windows_golinks_start.py
+   ```
+
+### Service Management
+
+You can manage the golinks service using the following commands:
+
 ```bash
-git clone https://github.com/yourusername/golinks-local.git
-cd golinks-local
+# View help
+python golinks.py --help
+
+# Start the service
+python golinks.py --start
+
+# Stop the service
+python golinks.py --stop
 ```
 
-2. Create a virtual environment and install dependencies:
-```bash
-# On macOS/Linux:
-python3 -m venv venv
-source venv/bin/activate
-
-# On Windows:
-python -m venv venv
-.\venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-3. Run the installation script for your platform:
-
-macOS:
-```bash
-python3 macos_install.py
-```
-
-Linux:
-```bash
-sudo python3 linux_install.py
-```
-
-Windows (run PowerShell as Administrator):
-```powershell
-python windows_install.py
-```
-
-The installation script will:
-- Configure DNS to resolve `go` to localhost
-- Set up the service to run on startup
-- Start the service
+The service manager will:
+- Automatically detect your operating system
+- Run the appropriate platform-specific scripts
+- Handle service installation and configuration
+- Manage DNS settings
+- Start/stop the service as needed
 
 ## Using golinks
 
-### First Time Setup
+### Initial Setup
 
-1. Open your browser and go to `go/go` or `http://localhost:8080/go/go`
-2. You'll see the main dashboard where you can manage your links
-3. Click "Add Link" to create your first shortlink
+1. Open your browser
+2. Navigate to `go/go` or `http://localhost:8080/go/go`
+3. You'll see the management dashboard
+4. Start by adding your first link!
 
-### Adding Links
+### Link Management
 
-1. Click "Add Link" in the dashboard
-2. Enter a shortlink (e.g., `google`)
-3. Enter the destination URL (e.g., `https://www.google.com`)
-4. Click "Add Link"
+#### Creating Links
+- Basic: `go/github` → `https://github.com`
+- With Search: `go/google "{query}"` → Searches Google
+- With Parameters: `go/jira "{ticket}"` → Opens JIRA tickets
 
-### Using Your Links
+#### Using Links
+- Direct Navigation: Type `go/shortlink` in your browser
+- With Search: `go/google "golinks tutorial"`
+- With Parameters: `go/jira "PROJ-123"`
 
-#### Basic Navigation
-Just type `go/shortlink` in your browser:
-- `go/google` → redirects to Google
-- `go/github` → redirects to GitHub
-- `go/docs` → redirects to your documentation
+#### Advanced Features
+- **Analytics**: Track usage patterns
+- **Bulk Operations**: Import/export links
+- **Categories**: Organize links by teams/projects
+- **Access Control**: Restrict link management
 
-#### Search Shortcuts
-Add search terms in quotes:
-- `go/google "cascade ai"` → searches Google for "cascade ai"
-- `go/youtube "cute cats"` → searches YouTube for "cute cats"
+## Configuration
 
-#### Advanced Usage
-Use the {query} placeholder in your destination URLs:
-1. Set up GitHub search:
-   - Shortlink: `gh`
-   - URL: `https://github.com/search?q={query}`
-   - Usage: `go/gh "python flask"` searches GitHub
-
-2. Set up JIRA tickets:
-   - Shortlink: `jira`
-   - URL: `https://your-company.atlassian.net/browse/{query}`
-   - Usage: `go/jira "PROJ-123"` opens ticket
-
-### Managing Links
-
-1. View all links at `go/go`
-2. Click on a link to:
-   - View usage statistics
-   - Edit the destination URL
-   - Delete the link
-3. Use the search bar to find specific links
-4. Sort links by usage, creation date, or name
-
-## Backup and Data
-
+### Data Location
 All data is stored in `~/.golinks/`:
-- `golinks.db`: Your links database
-- `golinks.log`: Application logs
+```
+~/.golinks/
+├── golinks.db    # SQLite database
+└── golinks.log   # Application logs
+```
 
-To backup your links, copy the `~/.golinks` directory.
+### Environment Variables
+- `SECRET_KEY`: Application secret (auto-generated if not set)
+- `LOG_LEVEL`: Logging detail (default: INFO)
+- `PORT`: Server port (default: 8080)
 
-## Troubleshooting
+## Troubleshooting Guide
 
-### Can't access go/links
-1. Verify DNS configuration:
+### Common Issues
+
+1. **DNS Resolution Failed**
    ```bash
-   # On macOS/Linux:
+   # Verify DNS configuration
    cat /etc/hosts  # Should show: 127.0.0.1 go
-
-   # On Windows:
-   type C:\Windows\System32\drivers\etc\hosts
-   ```
-
-2. Flush DNS cache:
-   ```bash
+   
+   # Flush DNS cache
    # macOS
    sudo killall -HUP mDNSResponder
-
    # Windows
    ipconfig /flushdns
-
    # Linux
    sudo systemd-resolve --flush-caches
    ```
 
-### Service Issues
-1. Check service status:
+2. **Service Not Running**
    ```bash
+   # Check service status
    # macOS
    launchctl list | grep golinks
-
    # Windows
    sc query GoLinks
-
    # Linux
    systemctl status golinks
    ```
 
-2. View logs:
-   ```bash
-   tail -f ~/.golinks/golinks.log
-   ```
-
-### Database Issues
-1. Check permissions:
-   ```bash
-   ls -la ~/.golinks/
-   ```
-
-2. Reset database (will delete all links):
-   ```bash
-   rm ~/.golinks/golinks.db
-   flask db upgrade
-   ```
+3. **Database Issues**
+   - Check permissions: `ls -la ~/.golinks/`
+   - View logs: `tail -f ~/.golinks/golinks.log`
+   - Reset database: `rm ~/.golinks/golinks.db && flask db upgrade`
 
 ## Contributing
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Development setup
+- Code style guidelines
+- Testing procedures
+- Pull request process
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+
+## Acknowledgments
+
+- Inspired by Google's internal go links system
+- Built with Flask, SQLAlchemy, and modern web technologies
+- Thanks to all contributors!
