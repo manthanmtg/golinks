@@ -114,7 +114,17 @@ def handle_go_link(shortlink):
 @app.route('/api/links', methods=['GET'])
 def get_links():
     try:
-        links = GoLink.query.order_by(GoLink.created_at.desc()).all()
+        search_query = request.args.get('q', '').strip().lower()
+        query = GoLink.query.order_by(GoLink.created_at.desc())
+        
+        if search_query:
+            search_filter = db.or_(
+                GoLink.shortlink.ilike(f'%{search_query}%'),
+                GoLink.destination.ilike(f'%{search_query}%')
+            )
+            query = query.filter(search_filter)
+        
+        links = query.all()
         return jsonify([link.to_dict() for link in links])
     except Exception as e:
         app.logger.error(f'Error getting links: {str(e)}')
@@ -164,6 +174,42 @@ def delete_link(link_id):
     
     except Exception as e:
         app.logger.error(f'Error deleting link: {str(e)}')
+        db.session.rollback()
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/links/<int:link_id>', methods=['PUT'])
+def update_link(link_id):
+    try:
+        link = GoLink.query.get(link_id)
+        if not link:
+            return '', 404
+        
+        data = request.get_json()
+        shortlink = data.get('shortlink', '').strip()
+        destination = data.get('destination', '').strip()
+        
+        if not shortlink or not destination:
+            return jsonify({'error': 'Both shortlink and destination are required'}), 400
+        
+        if not shortlink.isalnum() and not all(c in '-_' for c in shortlink if not c.isalnum()):
+            return jsonify({'error': 'Shortlink can only contain letters, numbers, hyphens, and underscores'}), 400
+            
+        if not destination.startswith(('http://', 'https://')):
+            destination = 'https://' + destination
+        
+        # Check if the new shortlink already exists (excluding the current link)
+        existing = GoLink.query.filter(GoLink.shortlink == shortlink, GoLink.id != link_id).first()
+        if existing:
+            return jsonify({'error': 'Shortlink already exists'}), 409
+        
+        link.shortlink = shortlink
+        link.destination = destination
+        db.session.commit()
+        
+        return jsonify(link.to_dict()), 200
+    
+    except Exception as e:
+        app.logger.error(f'Error updating link: {str(e)}')
         db.session.rollback()
         return jsonify({'error': 'Internal server error'}), 500
 
